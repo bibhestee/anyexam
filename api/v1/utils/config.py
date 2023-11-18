@@ -11,7 +11,8 @@ class Config():
         Attributes:
     """
     SECRET_KEY = getenv('SECRET_KEY')
-    DB_USER = getenv('DB_USER')
-    DB_HOST = getenv('DB_HOST')
-    DB_PWD = getenv('DB_PWD')
-    DB = getenv('DB')
+    usr = getenv('DB_USER')
+    host = getenv('DB_HOST')
+    pwd = getenv('DB_PWD')
+    db = getenv('DB')
+    SQLALCHEMY_DB_URI = f'postgresql://{usr}:{pwd}@{host}/{db}'

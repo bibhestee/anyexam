@@ -7,12 +7,16 @@ from api.v1.views import auth
 from flask import Flask, jsonify
 from flask_cors import (CORS, cross_origin)
 from api.v1.utils.config import Config
+from models.db import Database
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
+# Blueprint registrations
 app.register_blueprint(auth.bp)
-
+# Connect the app to database 
+Database().db.init_app(app)
+# Allow cross origin on incoming requests
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
 
