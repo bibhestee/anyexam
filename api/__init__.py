@@ -9,6 +9,7 @@ from flask import Flask, jsonify
 from flask_cors import (CORS, cross_origin)
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.exceptions import MethodNotAllowed
 from api.v1.utils.config import Config
 from api.models import db_engine
 
@@ -69,3 +70,14 @@ def forbidden(error) -> str:
         'message': 'Forbidden'
     }
     return jsonify(payload), 403
+
+
+@app.errorhandler(MethodNotAllowed)
+def handle_method_not_allowed(error) -> str:
+    """ Handle not allowed method requests """
+    allowed_methods = ', '.join(error.valid_methods)
+    payload = {
+        'status': 'error',
+        'message': 'Unknown endpoint'
+    }
+    return jsonify(payload), 405
