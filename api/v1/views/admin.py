@@ -3,7 +3,6 @@
 Admin Routes
 """
 from flask import Blueprint, request, jsonify, abort
-from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import DataError
 from api.models.admin import Admin
 from api.models.db import Database
@@ -98,41 +97,3 @@ def delete_admin(admin_id: str = None) -> str:
         abort(404)
     db.delete(admin)
     return jsonify({}), 203
-
-
-# @bp.route('/admins', methods=['POST'], strict_slashes=False)
-# def create_admin() -> str:
-#     """ POST /api/v1/admins/
-#     JSON body:
-#       - email
-#       - password
-#       - last_name (optional)
-#       - first_name (optional)
-#     Return:
-#       - admin object JSON represented
-#       - 400 if can't create the new admin
-#     """
-#     rj = None
-#     error_msg = None
-#     try:
-#         rj = request.get_json()
-#     except Exception as e:
-#         rj = None
-#     if rj is None:
-#         error_msg = "Wrong format"
-#     if error_msg is None and rj.get("email", "") == "":
-#         error_msg = "email missing"
-#     if error_msg is None and rj.get("password", "") == "":
-#         error_msg = "password missing"
-#     if error_msg is None:
-#         try:
-#             admin = admin()
-#             admin.email = rj.get("email")
-#             admin.password = rj.get("password")
-#             admin.first_name = rj.get("first_name")
-#             admin.last_name = rj.get("last_name")
-#             admin.save()
-#             return jsonify(admin.to_json()), 201
-#         except Exception as e:
-#             error_msg = "Can't create admin: {}".format(e)
-#     return jsonify({'error': error_msg}), 400

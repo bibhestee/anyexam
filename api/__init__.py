@@ -2,7 +2,6 @@
 """
 Main API Module
 """
-from os import getenv
 from api.v1.views import auth
 from api.v1.views import admin
 from flask import Flask, jsonify
@@ -36,7 +35,7 @@ CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 @app.route('/api')
 @app.route('/api/v1')
 def home():
-    return 'You just hit the anyexam api base url - add resource to the baseURL to access resources'
+    return 'You just hit the anyexam api base url - add resource to the baseURL(/api/v1) to access resources'
 
 
 @app.errorhandler(404)

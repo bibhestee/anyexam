@@ -3,9 +3,9 @@
 Authentication Routes
 """
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
 from api.models.admin import Admin
 from api.models.db import Database
+from api.v1.utils.pwdvalidator import hash_password
 
 bp  = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 db = Database()
@@ -14,46 +14,15 @@ db = Database()
 @bp.route('/signup', methods=['POST'], strict_slashes=False)
 def admin_signup():
     """admin signup route"""
-    body = request.form.to_dict()
+    body = request.get_json()
     firstname = body.get('firstname')
     lastname = body.get('lastname')
     email = body.get('email')
     org = body.get('organization')
     pos = body.get('position')
     password = body.get('password')
-    if not firstname:
-        return jsonify({
-            'status': 'error',
-            'message': 'first name is missing'
-        }), 400
-    if not lastname:
-        return jsonify({
-            'status': 'error',
-            'message': 'last name is missing'
-        }), 400
-    if not email:
-        return jsonify({
-            'status': 'error',
-            'message': 'email is missing'
-        }), 400
-    if not org:
-        return jsonify({
-            'status': 'error',
-            'message': 'organization is missing'
-        }), 400
-    if not pos:
-        return jsonify({
-            'status': 'error',
-            'message': 'position is missing'
-        }), 400
-    if not password:
-        return jsonify({
-            'status': 'error',
-            'message': 'password is missing'
-        }), 400
-
-    pwd = generate_password_hash(password)
     try:
+        pwd = hash_password(password)
         data = db.create_model(Admin, email=email, firstname=firstname, 
     lastname=lastname, organization=org, hashed_password=pwd, position=pos)
         return jsonify({
@@ -63,6 +32,12 @@ def admin_signup():
         })
     except ValueError as e:
         message = e.args[0].split('DETAIL:  ')[1]
+        return jsonify({
+            'status': 'error',
+            'message': message
+        }), 400
+    except AssertionError as e:
+        message = e.args[0]
         return jsonify({
             'status': 'error',
             'message': message
