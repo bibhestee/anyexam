@@ -2,12 +2,9 @@
 """
 Database Controller Module
 """
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
-
-
-class Base(DeclarativeBase):
-    pass
+from uuid import uuid4
+from api.models import db_engine
+db = db_engine
 
 
 class Database():
@@ -21,6 +18,25 @@ class Database():
             update: update a model
             delete: delete a model
     """
-    def __init__(self):
-        """ Initialize the database connection """
-        self.db = SQLAlchemy(model_class=Base)
+    def create_model(self, model, **kwargs):
+        """ create a model """
+        from api import app
+        with app.app_context():
+            try:
+                id = str(uuid4())
+                obj = model(**kwargs)
+                obj.id = id
+                db.session.add(obj)
+                db.session.commit()
+                return obj
+            except Exception as e:
+                db.session.rollback()
+                return {
+                    'error': e._message()
+                }
+
+    def get_model(self, model, id):
+        """ get a single model """
+        from api import app
+        with app.app_context():
+            return db.one_or_404(db.select(model).filter_by(id=id))
