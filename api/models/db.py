@@ -2,10 +2,10 @@
 """
 Database Controller Module
 """
-from uuid import uuid4
 from api.models import db_engine
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import InvalidRequestError, DataError
+from sqlalchemy.exc import IntegrityError
+
 db = db_engine
 
 
@@ -25,17 +25,13 @@ class Database():
         from api import app
         with app.app_context():
             try:
-                id = str(uuid4())
                 obj = model(**kwargs)
-                obj.id = id
                 db.session.add(obj)
                 db.session.commit()
-                return obj
-            except Exception as e:
+                return obj.to_json()
+            except IntegrityError as e:
                 db.session.rollback()
-                return {
-                    'error': e._message()
-                }
+                raise ValueError(e._message())
 
     def get_model(self, model, id: str):
         """ get a single model """

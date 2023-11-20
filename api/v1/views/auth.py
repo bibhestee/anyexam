@@ -53,15 +53,17 @@ def admin_signup():
         }), 400
 
     pwd = generate_password_hash(password)
-    data = db.create_model(Admin, email=email, firstname=firstname, 
+    try:
+        data = db.create_model(Admin, email=email, firstname=firstname, 
     lastname=lastname, organization=org, hashed_password=pwd, position=pos)
-    if data.get('error'):
+        return jsonify({
+            'status': 'success',
+            'message': 'Account created successfully!',
+            'data': data
+        })
+    except ValueError as e:
+        message = e.args[0].split('DETAIL:  ')[1]
         return jsonify({
             'status': 'error',
-            'message': data.get('error')
+            'message': message
         }), 400
-    return jsonify({
-        'status': 'success',
-        'message': 'Account created successfully!',
-        'data': data.to_json()
-    })
