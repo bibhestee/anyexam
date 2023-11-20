@@ -4,6 +4,8 @@ Database Controller Module
 """
 from uuid import uuid4
 from api.models import db_engine
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError, DataError
 db = db_engine
 
 
@@ -35,8 +37,39 @@ class Database():
                     'error': e._message()
                 }
 
-    def get_model(self, model, id):
+    def get_model(self, model, id: str):
         """ get a single model """
         from api import app
         with app.app_context():
             return db.one_or_404(db.select(model).filter_by(id=id))
+
+    def get_all(self, model):
+        """ get all model """
+        from api import app
+        with app.app_context():
+            objs = db.session.execute(db.select(model).order_by(model.email)).all()
+            return [obj[0].to_json() for obj in objs]
+        
+    def update(self, model, id: str,  **kwargs) -> None:
+        """ Update model with arbitrary keyword arguments """
+        try:
+            obj = self.get_model(model, id)
+            for k, v in kwargs.items():
+                if hasattr(model, k):
+                    setattr(obj, k, v)
+                else:
+                    raise ValueError
+            from api import app
+            with app.app_context():
+                db.session.merge(obj)
+                db.session.commit()
+                return obj
+        except NoResultFound:
+            raise ValueError
+    
+    def delete(self, obj):
+        """ delete model """
+        from api import app
+        with app.app_context():
+            db.session.delete(obj)
+            db.session.commit()
