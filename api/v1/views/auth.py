@@ -3,17 +3,21 @@
 Authentication Routes
 """
 from flask import Blueprint, request, jsonify
+from api import app
 from api.models.admin import Admin
 from api.models.db import Database
 from api.v1.utils.pwdvalidator import hash_password
+from api.v1.utils.verify_credentials import verify_credentials
+import jwt
+from datetime import datetime, timedelta
 
 bp  = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 db = Database()
 
 
 @bp.route('/signup', methods=['POST'], strict_slashes=False)
-def admin_signup():
-    """admin signup route"""
+def signup():
+    """ signup route"""
     body = request.get_json()
     firstname = body.get('firstname')
     lastname = body.get('lastname')
@@ -42,3 +46,18 @@ def admin_signup():
             'status': 'error',
             'message': message
         }), 400
+    
+
+@bp.route('/signin', methods=['POST'], strict_slashes=False)
+@verify_credentials
+def signin(email):
+    """ signin route"""
+    # Get a token with jwt using email
+    token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=12)}, app.config['SECRET_KEY'])
+    # Send the token as authorization in the header 
+    response = jsonify({
+        'status': 'success',
+        'message': 'You have successfully login'
+    })
+    response.headers.set('Authorization', f'Bearer {token}')
+    return response

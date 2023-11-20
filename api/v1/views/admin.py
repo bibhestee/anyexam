@@ -6,6 +6,8 @@ from flask import Blueprint, request, jsonify, abort
 from sqlalchemy.exc import DataError
 from api.models.admin import Admin
 from api.models.db import Database
+from api.v1.utils.token_required import token_required
+
 
 bp  = Blueprint('admin', __name__, url_prefix='/api/v1/admins')
 db = Database()
@@ -46,7 +48,8 @@ def view_all_admins() -> str:
 
 
 @bp.route('/<admin_id>', methods=['PUT'], strict_slashes=False)
-def update_admin(admin_id: str = None) -> str:
+@token_required
+def update_admin(current_user, admin_id: str = None) -> str:
     """ PUT /api/v1/admins/:id
     Path parameter:
       - admin ID
