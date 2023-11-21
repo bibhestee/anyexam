@@ -3,7 +3,6 @@
 Authentication Routes
 """
 from flask import Blueprint, request, jsonify
-from api import app
 from api.models.admin import Admin
 from api.models.db import Database
 from api.v1.utils.pwdvalidator import hash_password
@@ -50,9 +49,10 @@ def signup():
 
 @bp.route('/signin', methods=['POST'], strict_slashes=False)
 @verify_credentials
-def signin(email):
+def signin(email: str):
     """ signin route"""
     # Get a token with jwt using email
+    from api import app
     token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=12)}, app.config['SECRET_KEY'])
     # Send the token as authorization in the header 
     response = jsonify({

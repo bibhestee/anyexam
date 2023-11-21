@@ -3,10 +3,8 @@
 from flask import request, jsonify
 from functools import wraps
 import jwt
-from api import app
 from api.models.db import Database as db
 from api.models.admin import Admin
-
 
 def token_required(f):
     @wraps(f)
@@ -27,6 +25,7 @@ def token_required(f):
             # Extract token from bearer token jwt
             token = auth.split(' ')[1]
             # decoding the payload to fetch the stored details
+            from api import app
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = db().get_model(Admin, email=data.email)
         except jwt.ExpiredSignatureError:

@@ -3,7 +3,7 @@
 from functools import wraps
 from flask import request, jsonify
 from werkzeug.security import check_password_hash
-from api.models.db import Database as db
+from api.models import db_engine as db
 from api.models.admin import Admin
 
 
@@ -28,7 +28,7 @@ def verify_credentials(f):
             }
             return jsonify(payload), 400
         # Check if the email is already registered
-        admin = db().get_model(Admin, email=email)
+        admin = db.session.execute(db.select(Admin).filter_by(email=email)).first()[0]
         if not admin:
             payload = {
                'status': 'error',
@@ -43,6 +43,6 @@ def verify_credentials(f):
             }
             return jsonify(payload), 400
         # Return the email address
-        return f(email=email, *args, **kwargs)
+        return f(email, *args, **kwargs)
 
     return decorated

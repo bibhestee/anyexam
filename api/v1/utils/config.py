@@ -10,7 +10,7 @@ class Config():
         Config - application configuration datas
         Attributes:
     """
-    SECRET_KEY = getenv('SECRET_KEY')
+    SECRET_KEY = getenv('SECRET_KEY', '$2b$10$YRC5u2X6K')
     usr = getenv('DB_USER', 'anyexam')
     host = getenv('DB_HOST','localhost')
     pwd = getenv('DB_PWD', 'anyexam')
