@@ -28,7 +28,7 @@ def verify_credentials(f):
             }
             return jsonify(payload), 400
         # Check if the email is already registered
-        admin = db.session.execute(db.select(Admin).filter_by(email=email)).first()[0]
+        admin = db.session.execute(db.select(Admin).filter_by(email=email)).first()
         if not admin:
             payload = {
                'status': 'error',
@@ -36,7 +36,7 @@ def verify_credentials(f):
             }
             return jsonify(payload), 400
         # Check if the password is correct
-        if not check_password_hash(admin.hashed_password, password):
+        if not check_password_hash(admin[0].hashed_password, password):
             payload = {
                'status': 'error',
               'message': 'Password is incorrect'
