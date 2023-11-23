@@ -24,10 +24,11 @@ def signup():
     org = body.get('organization')
     pos = body.get('position')
     password = body.get('password')
+    answer = body.get('answer')
     try:
         pwd = hash_password(password)
-        data = db.create_model(Admin, email=email, firstname=firstname, 
-    lastname=lastname, organization=org, hashed_password=pwd, position=pos)
+        data = db.create_model(Admin, email=email, firstname=firstname,
+    lastname=lastname, organization=org, hashed_password=pwd, position=pos, answer=answer)
         return jsonify({
             'status': 'success',
             'message': 'Account created successfully!',
@@ -45,7 +46,7 @@ def signup():
             'status': 'error',
             'message': message
         }), 400
-    
+
 
 @bp.route('/signin', methods=['POST'], strict_slashes=False)
 @verify_credentials
@@ -54,10 +55,40 @@ def signin(email: str):
     # Get a token with jwt using email
     from api import app
     token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=12)}, app.config['SECRET_KEY'])
-    # Send the token as authorization in the header 
+    # Send the token as authorization in the header
     response = jsonify({
         'status': 'success',
         'message': 'You have successfully login'
     })
     response.headers.set('Authorization', f'Bearer {token}')
     return response
+
+@bp.route('/reset-password/<id>', methods=['PUT'], strict_slashes=False)
+def reset_password(id: str):
+    """ reset password """
+    # Get the new password and security answer from the request body
+    body = request.get_json()
+    new_pwd = body.get('new_password')
+    answer = body.get('answer')
+    if not new_pwd or not answer:
+        return jsonify({
+            'status': 'error',
+            'message': 'No new password or security question answer supplied'
+        }), 400
+    admin = db.get_model(Admin, id)
+    # Check if security answer matches the answer at registration and
+    # Update password if answer matches
+    if admin.answer and admin.answer.lower() == answer.lower():
+        obj = {
+            'hashed_password': hash_password(new_pwd)
+        }
+        db.update(Admin, id, **obj)
+        return jsonify({
+            'status': 'success',
+            'message': 'password reset was successful'
+        }), 200
+
+    return jsonify({
+        'status': 'error',
+        'message': 'The answer is incorrect, retry. What is your favourite city?'
+    }), 400

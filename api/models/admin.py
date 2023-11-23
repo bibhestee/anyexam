@@ -26,6 +26,7 @@ class Admin(db.Model):
     organization: Mapped[str] = mapped_column(String, nullable=False)
     position: Mapped[str] = mapped_column(db.Enum('leader', 'staff', name='admin_position'), default='staff')
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    answer: Mapped[str] = mapped_column(String, nullable=True)
 
     @validates('firstname') 
     def validate_firstname(self, key, firstname):
@@ -50,6 +51,14 @@ class Admin(db.Model):
         if len(organization) < 3 or len(organization) > 20:
             raise AssertionError('organization name must be between 3 and 20 characters') 
         return organization 
+
+    @validates('answer') 
+    def validate_answer(self, key, answer):
+        if not answer:
+            raise AssertionError('No answer provided. What is your favourite city?')
+        if len(answer) < 3 or len(answer) > 20:
+            raise AssertionError('answer name must be between 3 and 20 characters') 
+        return answer
     
     @validates('position') 
     def validate_position(self, key, position):
