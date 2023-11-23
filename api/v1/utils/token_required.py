@@ -28,7 +28,9 @@ def token_required(f):
             # decoding the payload to fetch the stored details
             from api import app
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_user = db().get_model(Admin, email=data['email'])
+            email = data.get('email')
+            from api.models import db_engine
+            current_user = db_engine.one_or_404(db_engine.select(Admin).filter_by(email=email))
         except jwt.ExpiredSignatureError:
             return jsonify({
                 'status': 'error',
