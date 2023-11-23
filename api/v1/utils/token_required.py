@@ -10,6 +10,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
+        auth = None
         # Get token from request header
         if 'Authorization' in request.headers:
             auth = request.headers['Authorization']
@@ -26,8 +27,10 @@ def token_required(f):
             token = auth.split(' ')[1]
             # decoding the payload to fetch the stored details
             from api import app
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = db().get_model(Admin, email=data.email)
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            email = data.get('email')
+            from api.models import db_engine
+            current_user = db_engine.one_or_404(db_engine.select(Admin).filter_by(email=email))
         except jwt.ExpiredSignatureError:
             return jsonify({
                 'status': 'error',

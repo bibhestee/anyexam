@@ -65,11 +65,11 @@ def update_admin(current_user, admin_id: str = None) -> str:
     """
     if not admin_id:
         abort(404)
-    data = request.form.to_dict()
+    data = request.get_json()
     if not data:
         payload = {
             'status': 'error',
-            'message': 'Wrong format'
+            'message': 'Wrong format: check the request data'
         }
         return jsonify(payload), 400
     try:
@@ -77,6 +77,11 @@ def update_admin(current_user, admin_id: str = None) -> str:
         return jsonify({'data': updatedModel.to_json()}), 200
     except ValueError:
         abort(404)
+    except AttributeError:
+        return jsonify({
+            'status': 'error',
+            'message': 'Invalid update field'
+        }), 400
     except DataError:
         abort(404)
 

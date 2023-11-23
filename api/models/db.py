@@ -54,7 +54,7 @@ class Database():
                 if hasattr(model, k):
                     setattr(obj, k, v)
                 else:
-                    raise ValueError
+                    raise AttributeError
             from api import app
             with app.app_context():
                 db.session.merge(obj)
