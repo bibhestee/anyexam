@@ -2,11 +2,10 @@
 """
 Candidate Model
 """
-from sqlalchemy import String
+from sqlalchemy import String, Uuid, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, validates
 import re
 from api.models import db_engine
-from api.models import Admin
 
 db = db_engine
 
@@ -22,7 +21,7 @@ class Candidate(db.Model):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     firstname: Mapped[str] = mapped_column(String, nullable=False)
     lastname: Mapped[str] = mapped_column(String, nullable=False)
-    admin_id: Mapped[str] = mapped_column(String, ForeignKey('admin.id'), nullable=False)
+    admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
 
     @validates('email')
     def validate_email(self, key, email):
