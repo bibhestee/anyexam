@@ -2,10 +2,9 @@
 """
 Candidate Model
 """
-from sqlalchemy import String
+from sqlalchemy import String, Uuid, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, validates
 from api.models import db_engine
-from api.models import Admin
 
 db = db_engine
 
@@ -23,13 +22,13 @@ class Exam(db.Model):
     token: Mapped[str] = mapped_column(String, nullable=False)
     question: Mapped[str] = mapped_column(String, nullable=False)
     answer: Mapped[str] = mapped_column(String, nullable=False)
-    admin_id: Mapped[str] = mapped_column(String, ForeignKey('admin.id'), nullable=False)
+    admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
 
     @validates('title')
     def validate_title(self, key, title):
         if not title:
             raise AssertionError('No title provided')
-        if len(title) < 5 or len(title) > 30
+        if len(title) < 5 or len(title) > 30:
             raise AssertionError('title must be between 5 and 30 characters')
         return title
     
@@ -45,7 +44,6 @@ class Exam(db.Model):
             raise AssertionError('No answer provided')
         return answer
         
-    
     def to_json(cls):
         return {
             'exam_id': str(cls.id),
