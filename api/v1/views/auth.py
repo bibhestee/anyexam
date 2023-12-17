@@ -8,6 +8,7 @@ from api.models.candidate import Candidate
 from api.models.db import Database
 from api.v1.utils.pwdvalidator import hash_password
 from api.v1.utils.verify_credentials import verify_credentials
+from api.v1.utils.verify_user_credentials import verify_candidate_credentials
 import jwt
 from datetime import datetime, timedelta
 
@@ -99,7 +100,7 @@ def reset_password(id: str):
 def user_login(email: str):
     """ Candidate login """
     from api import app
-    token = jwt.encode({'email': email}, app.config['SECRET_KEY'], 'exp': datetime.utcnow() + timedelta(hours=2))
+    token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=2)}, app.config['SECRET_KEY'])
     response = jsonify({
         'status': 'success',
         'message': 'You have successfully logged in'

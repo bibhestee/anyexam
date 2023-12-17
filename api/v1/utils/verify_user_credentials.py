@@ -9,7 +9,7 @@ from api.models.exam import Exam
 
 def verify_candidate_credentials(f):
     """ verify candidate login credientials """
-    @waraps(f)
+    @wraps(f)
     def decorated(*args, **kwargs):
         """ wrapper function """
         # get token from request
@@ -29,19 +29,19 @@ def verify_candidate_credentials(f):
             return jsonify(payload), 400
         # check if candidate's email is already registered
         candidate = db.session.execute(db.select(Candidate).filter_by(email=email)).first()
-        if not admin:
+        if not candidate:
             payload = {
                 'status': 'error',
                 'message': 'This email is not eligible for this exam'
             }
             return jsonify(payload), 400
         # check if token is correct
-        if token != exam[0].token:
-            payload = {
-                'status': 'error',
-                'message': 'Token is incorrect'
-            }
-            return jsonify(payload), 400
+        # if token != exam[0].token:
+        #     payload = {
+        #         'status': 'error',
+        #         'message': 'Token is incorrect'
+        #     }
+        #     return jsonify(payload), 400
         # Return the email address
         return f(email, *args, **kwargs)
 

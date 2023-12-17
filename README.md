@@ -5,6 +5,10 @@ Anyexam is an educational solution to improve the education system by making com
 
 
 ## For Developer
+To start the app 
+$ flask --app api run
+
+
 To generate an initial migration:
 
 $ flask --app api db migrate
