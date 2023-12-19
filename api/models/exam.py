@@ -2,9 +2,10 @@
 """
 Candidate Model
 """
-from sqlalchemy import String, Uuid, ForeignKey
+from sqlalchemy import String, Uuid, ForeignKey, DateTime, Interval
 from sqlalchemy.orm import Mapped, mapped_column, validates
 from api.models import db_engine
+from datetime import datetime, timedelta
 
 db = db_engine
 
@@ -20,6 +21,8 @@ class Exam(db.Model):
     """
     title: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     token: Mapped[str] = mapped_column(String, nullable=False)
+    scheduled_time = Mapped[str] = mapped_column(DateTime, default=datetime.now+timedelta(days=3))
+    exam_time =  Mapped[str] = mapped_column(Interval)
     question: Mapped[str] = mapped_column(String, nullable=False)
     answer: Mapped[str] = mapped_column(String, nullable=False)
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
