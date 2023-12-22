@@ -2,7 +2,7 @@
 """
 Examination Model
 """
-from sqlalchemy import String, Integer, Uuid, ForeignKey, ARRAY, Enum
+from sqlalchemy import String, Integer, Uuid, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, validates
 from api.models import db_engine
 
@@ -20,8 +20,8 @@ class Exam(db.Model):
     """
     title: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     exam_type: Mapped[str] = mapped_column(String, nullable=False)
-    duration = Mapped[str] = mapped_column(Integer, nullable=False)
-    no_of_questions: Mapped[str] = mapped_column(Integer, nullable=False)
+    duration: Mapped[int] = mapped_column(Integer, nullable=False)
+    no_of_questions: Mapped[int] = mapped_column(Integer, nullable=False)
     result: Mapped[str] = mapped_column(Enum('visible', 'hidden', name='result_visibility'), default='visible')
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
 
@@ -29,8 +29,8 @@ class Exam(db.Model):
     def validate_title(self, key, title):
         if not title:
             raise AssertionError('Exam title is required')
-        if len(title) < 5 or len(title) > 30:
-            raise AssertionError('title must be between 5 and 30 characters')
+        if len(title) < 3 or len(title) > 40:
+            raise AssertionError('title must be between 3 and 40 characters')
         return title
     
     @validates('exam_type')
@@ -45,9 +45,21 @@ class Exam(db.Model):
     def validate_no_of_questions(self, key, no_of_questions):
         if not no_of_questions:
             raise AssertionError('no_of_questions is required')
-        if type(no_of_questions) != int:
+        try:
+            int(no_of_questions)
+        except Exception:
             raise AssertionError('no_of_questions should be an integer')
         return no_of_questions
+
+    @validates('duration')
+    def validate_duration(self, key, duration):
+        if not duration:
+            raise AssertionError('duration is required')
+        try:
+            int(duration)
+        except Exception:
+            raise AssertionError('duration should be an integer')
+        return duration
         
     def to_json(cls):
         return {

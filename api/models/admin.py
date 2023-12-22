@@ -3,9 +3,11 @@
 Admin Model
 """
 from sqlalchemy import String
+from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 import re
 from api.models import db_engine
+from api.models.exam import Exam
 
 db = db_engine
 
@@ -27,8 +29,10 @@ class Admin(db.Model):
     position: Mapped[str] = mapped_column(db.Enum('leader', 'staff', name='admin_position'), default='staff')
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     answer: Mapped[str] = mapped_column(String, nullable=True)
-    candidate: Mapped[str] = relationship('Candidate', backref='candidate', lazy=True)
-    exam: Mapped[str] = relationship('Exam', backref='exam', lazy=True)
+    # candidate: Mapped[str] = relationship('Candidate', backref='candidate', lazy=True)
+    # One to many relationship with exam
+    # exams: Mapped[List['Exam']] = relationship(back_populates='admin')
+    exams: Mapped[List['Exam']] = relationship()
 
     @validates('firstname') 
     def validate_firstname(self, key, firstname):
