@@ -5,11 +5,12 @@ Admin Routes
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy.exc import DataError
 from api.models.admin import Admin
+from api.models.exam import Exam
 from api.models.db import Database
 from api.v1.utils.token_required import token_required
 
 
-bp  = Blueprint('admin', __name__, url_prefix='/api/v1/admins')
+bp = Blueprint('admin', __name__, url_prefix='/api/v1/admins')
 db = Database()
 
 
@@ -105,3 +106,57 @@ def delete_admin(admin_id: str = None) -> str:
         abort(404)
     db.delete(admin)
     return jsonify({}), 203
+
+
+@bp.route('/exams', methods=['POST'], strict_slashes=False)
+@token_required
+def exam_condition(current_user):
+    """ POST /api/v1/admins/exams
+    Form data
+        title: title of the exam.
+        exam_type: type of the exam.
+        duration: duration of the exam.
+        no_of_questions: Number of question for the exam.
+        result: Handle result's visibility to candidate.
+        admin_id: Admin id
+    """
+    title = request.get_json().get('title')
+    exam_type = request.get_json().get('exam_type')
+    duration = request.get_json().get('duration')
+    no_of_questions = request.get_json().get('no_of_questions')
+    result = request.get_json().get('result')
+    try:
+        data = db.create_model(Exam, title=title, exam_type=exam_type, duration=duration, no_of_questions=no_of_questions, result=result, admin_id=current_user.id)
+        return jsonify({
+            'status': 'success',
+            'message': 'Exam conditions set successfully!',
+            'data': data
+        })
+    except ValueError as e:
+        message = e.args[0].split('DETAIL:  ')[1]
+        return jsonify({
+            'status': 'error',
+            'message': message
+        }), 400
+    except AssertionError as e:
+        message = e.args[0]
+        return jsonify({
+            'status': 'error',
+            'message': message
+        }), 400
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'status': 'error',
+            'message': 'Internal server error'
+        }), 500
+
+
+@bp.route('/exams', methods=['GET'], strict_slashes=False)
+def get_all_exam():
+    """ GET /api/v1/admins/exams
+    Return:
+      - list of all Exam objects JSON represented
+    """
+    exams = db.get_all(Exam)
+    return jsonify(exams)
