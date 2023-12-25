@@ -3,8 +3,10 @@
 Examination Model
 """
 from sqlalchemy import String, Integer, Uuid, ForeignKey, Enum
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column, validates, relationship
 from api.models import db_engine
+from api.models.result import Result
+from typing import List
 
 db = db_engine
 
@@ -24,6 +26,7 @@ class Exam(db.Model):
     no_of_questions: Mapped[int] = mapped_column(Integer, nullable=False)
     result: Mapped[str] = mapped_column(Enum('visible', 'hidden', name='result_visibility'), default='visible')
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
+    result: Mapped[List['Result']] = relationship()
 
     @validates('title')
     def validate_title(self, key, title):
