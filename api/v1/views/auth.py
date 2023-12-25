@@ -4,8 +4,8 @@ Authentication Routes
 """
 from flask import Blueprint, request, jsonify
 from api.models.admin import Admin
-from api.models.candidate import Candidate
 from api.models.db import Database
+from api.models.candidate import Candidate
 from api.v1.utils.pwdvalidator import hash_password
 from api.v1.utils.verify_credentials import verify_credentials
 from api.v1.utils.verify_user_credentials import verify_candidate_credentials
