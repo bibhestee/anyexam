@@ -191,3 +191,33 @@ def get_all_my_exams(admin_id: str):
     """
     exams = db.get_my_exams(Exam, admin_id)
     return jsonify(exams)
+
+
+@bp.route('/exams/<exam_id>', methods=['PUT'], strict_slashes=False)
+@token_required
+def update_exam(current_user, exam_id: str):
+    """ PUT /api/v1/admins/exams
+    Return:
+        - update the Exam objects
+    """
+    if not exam_id:
+        abort(404)
+    data = request.get_json()
+    if not data:
+        payload = {
+            'status': 'error',
+            'message': 'Wrong format: check the request data'
+        }
+        return jsonify(payload), 400
+    try:
+        updatedModel = db.update(Exam, exam_id, **data)
+        return jsonify({'data': updatedModel.to_json()}), 200
+    except ValueError:
+        abort(404)
+    except AttributeError:
+        return jsonify({
+            'status': 'error',
+            'message': 'Invalid update field'
+        }), 400
+    except DataError:
+        abort(404)
