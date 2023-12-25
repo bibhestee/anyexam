@@ -160,3 +160,34 @@ def get_all_exam():
     """
     exams = db.get_all(Exam)
     return jsonify(exams)
+
+
+@bp.route('/exams/<exam_id>', methods=['GET'], strict_slashes=False)
+def get_exam(exam_id: str):
+    """ GET /api/v1/admins/exams
+    Return:
+      - Exam object JSON represented
+    """
+    if not exam_id:
+        abort(404)
+    try:
+        exam = db.get_model(Exam, exam_id)
+        if not exam:
+            abort(404)
+    except DataError:
+        abort(404)
+    return jsonify({
+            'status': 'success',
+            'data': exam.to_json(),
+            'message': 'exam retrieved successfully'
+        })
+
+
+@bp.route('/myexams/<admin_id>', methods=['GET'], strict_slashes=False)
+def get_all_my_exams(admin_id: str):
+    """ GET /api/v1/admins/myexams
+    Return:
+      - list of all Exam objects JSON represented by admin
+    """
+    exams = db.get_my_exams(Exam, admin_id)
+    return jsonify(exams)
