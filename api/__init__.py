@@ -4,6 +4,7 @@ Main API Module
 """
 from api.v1.views import auth
 from api.v1.views import admin
+from api.v1.views import exam
 from flask import Flask, jsonify
 from flask_cors import (CORS, cross_origin)
 from flask_migrate import Migrate
@@ -19,11 +20,13 @@ app.config.from_object(Config)
 # Blueprint registrations
 app.register_blueprint(auth.bp)
 app.register_blueprint(admin.bp)
+app.register_blueprint(exam.bp)
 # Connect the app to database 
 db.init_app(app)
 migrate = Migrate(app, db)
 # Import the models
 from api.models.admin import Admin
+from api.models.exam import Exam
 # Create the tables
 with app.app_context():
     db.create_all()
