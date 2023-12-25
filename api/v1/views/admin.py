@@ -158,6 +158,7 @@ def get_all_exam():
 
 
 @bp.route('/exams/<exam_id>', methods=['GET'], strict_slashes=False)
+@token_required
 def get_exam(exam_id: str):
     """ GET /api/v1/admins/exams
     Return:
@@ -178,14 +179,15 @@ def get_exam(exam_id: str):
         })
 
 
-@bp.route('/myexams/<admin_id>', methods=['GET'], strict_slashes=False)
-def get_all_my_exams(admin_id: str):
+@bp.route('/myexams', methods=['GET'], strict_slashes=False)
+@token_required
+def get_all_my_exams(current_user):
     """ GET /api/v1/admins/myexams
     Return:
-      - list of all Exam objects JSON represented by admin
+      - list of all admin's Exam objects as JSON represented
     """
-    exams = db.get_my_exams(Exam, admin_id)
-    return jsonify(exams)
+    my_exams = db.get_my_exams(Exam, current_user.id)
+    return jsonify(my_exams)
 
 
 @bp.route('/exams/<exam_id>', methods=['PUT'], strict_slashes=False)
