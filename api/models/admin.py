@@ -3,7 +3,7 @@
 Admin Model
 """
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 import re
 from api.models import db_engine
 
@@ -27,6 +27,8 @@ class Admin(db.Model):
     position: Mapped[str] = mapped_column(db.Enum('leader', 'staff', name='admin_position'), default='staff')
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     answer: Mapped[str] = mapped_column(String, nullable=True)
+    candidate: Mapped[str] = relationship('Candidate', backref='candidate', lazy=True)
+    exam: Mapped[str] = relationship('Exam', backref='exam', lazy=True)
 
     @validates('firstname') 
     def validate_firstname(self, key, firstname):
@@ -76,7 +78,7 @@ class Admin(db.Model):
         
     def to_json(cls):
         return {
-            'id': str(cls.id),
+            'admin_id': str(cls.id),
             'email': cls.email,
             'firstname': cls.firstname,
             'lastname': cls.lastname,
