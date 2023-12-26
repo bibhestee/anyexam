@@ -169,3 +169,49 @@ def generate_exam_token(current_user, exam_id: str):
             'status': 'error',
             'message': 'Internal server error'
         }), 500
+
+
+@bp.route('/results', methods=['GET'], strict_slashes=False)
+def get_result():
+    """ GET /api/v1/admins/exams/results
+    Return:
+        - all the result objects
+    """
+    results = db.get_all(Result)
+    return jsonify(results)
+
+
+@bp.route('/<exam_id>/results', methods=['GET'], strict_slashes=False)
+def get_result_by_exam(exam_id):
+    """ GET /api/v1/admins/exams/<exam_id>/results
+    Path parameter:
+        - exam_id
+    Return:
+        - Results of all exam with the id
+    """
+    exam = db.get_model(Exam, exam_id)
+    results = db.get_exam_results(Result, exam_id)
+    return jsonify({
+        'status': 'success',
+        'message': 'Results retrieved successfully',
+        'data': {
+            'exam': exam,
+            'results': results
+        }
+    })
+
+
+@bp.route('/results/<result_id>', methods=['GET'], strict_slashes=False)
+def get_result(result_id: str):
+    """ GET /api/v1/admins/exams/results/<result_id>
+    Path parameter:
+        - result_id
+    Return:
+        - a single result with the id
+    """
+    result = db.get_model(Result, result_id)
+    return jsonify({
+        'status': 'success',
+        'message': 'Result retrieved successfully',
+        'data': result
+    })
