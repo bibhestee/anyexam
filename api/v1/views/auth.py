@@ -97,10 +97,10 @@ def reset_password(id: str):
 
 @bp.route('/user-login', methods=['POST'], strict_slashes=False)
 @verify_candidate_credentials
-def user_login(email: str):
+def user_login(email: str, exam_id: str):
     """ Candidate login """
     from api import app
-    token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=2)}, app.config['SECRET_KEY'])
+    token = jwt.encode({'email': email, 'exam_id': exam_id, 'exp': datetime.utcnow() + timedelta(hours=2)}, app.config['SECRET_KEY'])
     response = jsonify({
         'status': 'success',
         'message': 'You have successfully logged in'
