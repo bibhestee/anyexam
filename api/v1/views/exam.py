@@ -74,7 +74,7 @@ def get_all_exam():
 
 @bp.route('/<exam_id>', methods=['GET'], strict_slashes=False)
 @token_required
-def get_exam(exam_id: str):
+def get_exam(current_user, exam_id: str):
     """ GET /api/v1/admins/exams
     Return:
       - Exam object JSON represented
@@ -145,7 +145,7 @@ def generate_exam_token(current_user, exam_id: str):
     token = generate_candidate_token()
     # Create a result model and return the token
     try:
-        data = db.create_model(Result, token=token, exam_id=exam.id, admin_id=current_user.id)
+        db.create_model(Result, token=token, exam_id=exam.id, admin_id=current_user.id)
         return jsonify({
             'status': 'success',
             'token': token,
@@ -172,7 +172,7 @@ def generate_exam_token(current_user, exam_id: str):
 
 
 @bp.route('/results', methods=['GET'], strict_slashes=False)
-def get_result():
+def get_results():
     """ GET /api/v1/admins/exams/results
     Return:
         - all the result objects
@@ -195,7 +195,7 @@ def get_result_by_exam(exam_id):
         'status': 'success',
         'message': 'Results retrieved successfully',
         'data': {
-            'exam': exam,
+            'exam': exam.to_json(),
             'results': results
         }
     })

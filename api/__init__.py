@@ -27,6 +27,7 @@ migrate = Migrate(app, db)
 # Import the models
 from api.models.admin import Admin
 from api.models.exam import Exam
+from api.models.result import Result
 # Create the tables
 with app.app_context():
     db.create_all()

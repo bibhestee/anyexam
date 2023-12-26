@@ -57,7 +57,7 @@ class Database():
         """ get all results related to exam_id """
         from api import app
         with app.app_context():
-            objs = db.session.execute(db.select(model).filter_by(id=id)).all()
+            objs = db.session.execute(db.select(model).filter_by(exam_id=exam_id)).all()
             return [obj[0].to_json() for obj in objs]
         
     def update(self, model, id: str,  **kwargs) -> None:
