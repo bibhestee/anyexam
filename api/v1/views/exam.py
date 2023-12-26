@@ -213,5 +213,5 @@ def get_result(result_id: str):
     return jsonify({
         'status': 'success',
         'message': 'Result retrieved successfully',
-        'data': result
+        'data': result.to_json()
     })
