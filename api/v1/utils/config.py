@@ -16,3 +16,4 @@ class Config():
     pwd = getenv('DB_PWD', 'anyexam')
     db = 'anyexam'
     SQLALCHEMY_DATABASE_URI = f'postgresql://{usr}:{pwd}@{host}/{db}'
+    UPLOAD_FOLDER = 'static/uploads'

@@ -26,7 +26,7 @@ class Exam(db.Model):
     no_of_questions: Mapped[int] = mapped_column(Integer, nullable=False)
     result: Mapped[str] = mapped_column(Enum('visible', 'hidden', name='result_visibility'), default='visible')
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
-    results: Mapped[List['Result']] = relationship()
+    results = relationship()
 
     @validates('title')
     def validate_title(self, key, title):
