@@ -26,7 +26,7 @@ class Exam(db.Model):
     no_of_questions: Mapped[int] = mapped_column(Integer, nullable=False)
     result: Mapped[str] = mapped_column(Enum('visible', 'hidden', name='result_visibility'), default='visible')
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
-    results = relationship()
+    results: Mapped[List['Result']] = relationship(back_populates='exam')
 
     @validates('title')
     def validate_title(self, key, title):
@@ -74,5 +74,6 @@ class Exam(db.Model):
             'duration': cls.duration,
             'result': cls.result,
             'created_at': str(cls.created_at),
-            'updated_at': str(cls.updated_at)
+            'updated_at': str(cls.updated_at),
+            'results': [result.to_json() for result in cls.results]
         }

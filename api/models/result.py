@@ -3,7 +3,7 @@
 Result Model
 """
 from sqlalchemy import String, Uuid, ForeignKey, Integer, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.models import db_engine
 
 db = db_engine
@@ -30,6 +30,8 @@ class Result(db.Model):
     token_used: Mapped[bool] = mapped_column(Boolean, default=False)
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
     exam_id: Mapped[str] = mapped_column(Uuid, ForeignKey('exam.id'), nullable=False)
+    # One to many relationship
+    exam: Mapped['Exam'] = relationship(back_populates='results')
 
     def to_json(cls):
         return {
