@@ -8,14 +8,11 @@ from werkzeug.utils import secure_filename
 
 supported_extension = ['.csv']
 
-def generate_filename(email, ext):
+def generate_filename(email: str, ext: str, file_id: int) -> str:
     """ Generate a defined filename with file id """
-    from random import random
-    from math import floor
-    # Generate file id
-    file_id = f'{floor(random() * 10)}{floor(random() * 10)}'
+    sep = '_'
     # Set a defined name
-    defined_name = email + '_' + file_id + ext
+    defined_name = email + sep + 'qb' + sep + file_id + ext
     # Secure the filename
     filename = secure_filename(defined_name)
     return filename
@@ -39,11 +36,13 @@ def upload(files, folder, current_user):
                 'message': 'Unsupported file format. Upload a csv file'
             }
         # Create a defined filename
-        filename = generate_filename(current_user.email.split('@')[0], ext)
+        file_id = 1
+        filename = generate_filename(current_user.email.split('@')[0], ext, file_id)
         dst = os.path.join(folder, filename)
         # Generate a new file_id if file exist
-        if os.path.exists(dst):
-            dst = os.path.join(folder, generate_filename(current_user.email.split('@')[0], ext))
+        while os.path.exists(dst):
+            file_id += 1
+            dst = os.path.join(folder, generate_filename(current_user.email.split('@')[0], ext, file_id))
         # Save the file
         try:
             file.save(dst)
