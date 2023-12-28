@@ -5,11 +5,12 @@ Admin Routes
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy.exc import DataError
 from api.models.admin import Admin
+from api.models.exam import Exam
 from api.models.db import Database
 from api.v1.utils.token_required import token_required
 
 
-bp  = Blueprint('admin', __name__, url_prefix='/api/v1/admins')
+bp = Blueprint('admin', __name__, url_prefix='/api/v1/admins')
 db = Database()
 
 
@@ -47,12 +48,10 @@ def view_all_admins() -> str:
     return jsonify(all_admins)
 
 
-@bp.route('/<admin_id>', methods=['PUT'], strict_slashes=False)
+@bp.route('/', methods=['PUT'], strict_slashes=False)
 @token_required
-def update_admin(current_user, admin_id: str = None) -> str:
-    """ PUT /api/v1/admins/:id
-    Path parameter:
-      - admin ID
+def update_admin(current_user) -> str:
+    """ PUT /api/v1/admins/
     JSON body:
       - last_name (optional)
       - first_name (optional)
@@ -60,11 +59,8 @@ def update_admin(current_user, admin_id: str = None) -> str:
       - position (optional)
     Return:
       - admin object JSON represented
-      - 404 if the admin ID doesn't exist
       - 400 if can't update the admin
     """
-    if not admin_id:
-        abort(404)
     data = request.get_json()
     if not data:
         payload = {
@@ -73,7 +69,7 @@ def update_admin(current_user, admin_id: str = None) -> str:
         }
         return jsonify(payload), 400
     try:
-        updatedModel = db.update(Admin, admin_id, **data)
+        updatedModel = db.update(Admin, current_user.id, **data)
         return jsonify({'data': updatedModel.to_json()}), 200
     except ValueError:
         abort(404)
@@ -105,3 +101,14 @@ def delete_admin(admin_id: str = None) -> str:
         abort(404)
     db.delete(admin)
     return jsonify({}), 203
+
+
+@bp.route('/myexams', methods=['GET'], strict_slashes=False)
+@token_required
+def get_all_my_exams(current_user):
+    """ GET /api/v1/admins/myexams
+    Return:
+      - list of all admin's Exam objects as JSON represented
+    """
+    my_exams = db.get_my_exams(Exam, current_user.id)
+    return jsonify(my_exams)

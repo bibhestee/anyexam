@@ -43,7 +43,21 @@ class Database():
         """ get all model """
         from api import app
         with app.app_context():
-            objs = db.session.execute(db.select(model).order_by(model.email)).all()
+            objs = db.session.execute(db.select(model)).all()
+            return [obj[0].to_json() for obj in objs]
+
+    def get_my_exams(self, model, admin_id):
+        """ get all my exam model """
+        from api import app
+        with app.app_context():
+            objs = db.session.execute(db.select(model).filter_by(admin_id=admin_id)).all()
+            return [obj[0].to_json() for obj in objs]
+        
+    def get_exam_results(self, model, exam_id: str):
+        """ get all results related to exam_id """
+        from api import app
+        with app.app_context():
+            objs = db.session.execute(db.select(model).filter_by(exam_id=exam_id)).all()
             return [obj[0].to_json() for obj in objs]
         
     def update(self, model, id: str,  **kwargs) -> None:

@@ -30,7 +30,7 @@ class Candidate(db.Model):
         if not re.match("[^@]+@[^@]+\.[^@]+", email):
             raise AssertionError('Provided email is not a valid email address')
         return email
-    
+
     @validates('firstname')
     def validate_firstname(self, key, firstname):
         if not firstname:
@@ -38,7 +38,7 @@ class Candidate(db.Model):
         if len(firstname) < 2 or len(firstname) > 20:
             raise AssertionError('firstname must be between 2 and 20 characters')
         return firstname
-        
+
     @validates('lastname')
     def validate_lastname(self, key, lastname):
         if not lastname:
@@ -46,7 +46,7 @@ class Candidate(db.Model):
         if len(lastname) < 2 or len(lastname) > 20:
             raise AssertionError('lastname must be between 2 and 20 characters')
         return lastname
-    
+
     def to_json(cls):
         return {
             'candidate_id': str(cls.id),

@@ -4,12 +4,15 @@ Main API Module
 """
 from api.v1.views import auth
 from api.v1.views import admin
+from api.v1.views import exam
+from api.v1.views import quiz
 from flask import Flask, jsonify
 from flask_cors import (CORS, cross_origin)
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import MethodNotAllowed
 from api.v1.utils.config import Config
+import os
 from api.models import db_engine
 
 db = db_engine
@@ -19,11 +22,17 @@ app.config.from_object(Config)
 # Blueprint registrations
 app.register_blueprint(auth.bp)
 app.register_blueprint(admin.bp)
+app.register_blueprint(exam.bp)
+app.register_blueprint(quiz.bp)
 # Connect the app to database 
 db.init_app(app)
 migrate = Migrate(app, db)
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 # Import the models
 from api.models.admin import Admin
+from api.models.exam import Exam
+from api.models.result import Result
 # Create the tables
 with app.app_context():
     db.create_all()

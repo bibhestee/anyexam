@@ -4,8 +4,8 @@ Authentication Routes
 """
 from flask import Blueprint, request, jsonify
 from api.models.admin import Admin
-from api.models.candidate import Candidate
 from api.models.db import Database
+from api.models.candidate import Candidate
 from api.v1.utils.pwdvalidator import hash_password
 from api.v1.utils.verify_credentials import verify_credentials
 from api.v1.utils.verify_user_credentials import verify_candidate_credentials
@@ -97,10 +97,10 @@ def reset_password(id: str):
 
 @bp.route('/user-login', methods=['POST'], strict_slashes=False)
 @verify_candidate_credentials
-def user_login(email: str):
+def user_login(email: str, exam_id: str):
     """ Candidate login """
     from api import app
-    token = jwt.encode({'email': email, 'exp': datetime.utcnow() + timedelta(hours=2)}, app.config['SECRET_KEY'])
+    token = jwt.encode({'email': email, 'exam_id': exam_id, 'exp': datetime.utcnow() + timedelta(hours=2)}, app.config['SECRET_KEY'])
     response = jsonify({
         'status': 'success',
         'message': 'You have successfully logged in'
