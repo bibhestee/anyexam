@@ -31,8 +31,7 @@ class Admin(db.Model):
     answer: Mapped[str] = mapped_column(String, nullable=True)
     # candidate: Mapped[str] = relationship('Candidate', backref='candidate', lazy=True)
     # One to many relationship with exam
-    # exams: Mapped[List['Exam']] = relationship(back_populates='admin')
-    exams: Mapped[List['Exam']] = relationship()
+    exams: Mapped[List['Exam']] = relationship(back_populates='admin')
 
     @validates('firstname') 
     def validate_firstname(self, key, firstname):
@@ -89,5 +88,6 @@ class Admin(db.Model):
             'organization': cls.organization,
             'position': cls.position,
             'created_at': str(cls.created_at),
-            'updated_at': str(cls.updated_at)
+            'updated_at': str(cls.updated_at),
+            'exams': [exam.to_json() for exam in cls.exams]
         }
