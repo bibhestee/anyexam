@@ -4,6 +4,7 @@ Files handler module
 """
 import os
 from flask import abort
+from csv import reader
 from werkzeug.utils import secure_filename
 
 supported_extension = ['.csv']
@@ -52,3 +53,25 @@ def upload(files, folder, current_user):
             }
         except Exception as e:
             abort(403)
+
+
+def get_all_files(folder: str) -> list:
+    """ Get all the files from a folder """
+    if not os.path.exists(folder):
+        return []
+    return os.listdir(folder)
+
+
+def load_file(filename: str) -> list:
+    """ load the file content """
+    if not os.path.exists(filename):
+        return None
+    try:
+        data = []
+        with open(filename, mode='r', encoding='UTF-8') as csv_file:
+            content = reader(csv_file)
+            for row in content:
+                data.append({'Question': row[0], 'Answers': row[1], 'Correct Answer': row[2]})
+        return data
+    except Exception as e:
+        raise AssertionError("Unable to read file")
