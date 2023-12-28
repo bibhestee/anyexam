@@ -81,3 +81,24 @@ def load_question_bank(current_user, exam_id):
         'message': 'Question bank files retrieved successfully',
         'data': files
     })
+
+
+@bp.route('/questionbank/<exam_id>/', methods=['DELETE'], strict_slashes=False)
+@token_required
+def delete_question_bank(current_user, exam_id):
+    """ GET /api/v1/quiz/questionbank/<exam_id>
+    """
+    # Check if folder exists
+    from api import app
+    folder = os.path.join(app.config['UPLOAD_FOLDER'], exam_id)
+    if not os.path.exists(folder):
+        return jsonify({
+            'status': 'error',
+            'message': 'Folder not found: invalid exam id'
+        }), 400
+    import shutil
+    shutil.rmtree(folder)
+    return jsonify({
+        'status': 'success',
+        'message': 'All question bank deleted'
+    })
