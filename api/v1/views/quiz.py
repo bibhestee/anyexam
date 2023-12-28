@@ -3,16 +3,11 @@
 Quiz Routes
 """
 from flask import Blueprint, request, jsonify, abort
-# from api.models.admin import Admin
 from api.models.db import Database
-from api.v1.utils.files_handler import upload
+from api.v1.utils.files_handler import upload, get_all_files, load_file
 from api.v1.utils.token_required import token_required
 from api.models.exam import Exam
-# from api.v1.utils.pwdvalidator import hash_password
-# from api.v1.utils.verify_credentials import verify_credentials
-# from api.v1.utils.verify_user_credentials import verify_candidate_credentials
-# import jwt
-# from datetime import datetime, timedelta
+import os
 
 bp  = Blueprint('quiz', __name__, url_prefix='/api/v1/quiz')
 db = Database()
@@ -50,7 +45,6 @@ def upload_question(current_user, exam_id):
                 'message': 'No file found. Select a file to be uploaded'
             }), 404
         # Create a folder with the exam id
-        import os
         from api import app
         folder = os.path.join(app.config['UPLOAD_FOLDER'], exam_id)
         if not os.path.exists(folder):
@@ -65,3 +59,25 @@ def upload_question(current_user, exam_id):
             'status': 'error',
             'message': 'Invalid exam id'
         })
+
+
+@bp.route('/questionbank/<exam_id>', methods=['GET'], strict_slashes=False)
+@token_required
+def load_question_bank(current_user, exam_id):
+    """ GET /api/v1/quiz/questionbank/<exam_id>
+    """
+    # Check if folder exists
+    from api import app
+    folder = os.path.join(app.config['UPLOAD_FOLDER'], exam_id)
+    if not os.path.exists(folder):
+        return jsonify({
+            'status': 'error',
+            'message': 'Folder not found: invalid exam id'
+        }), 400
+    # Get all the files in the directory
+    files = get_all_files(folder)
+    return jsonify({
+        'status': 'success',
+        'message': 'Question bank files retrieved successfully',
+        'data': files
+    })
