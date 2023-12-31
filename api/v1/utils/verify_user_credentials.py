@@ -4,6 +4,8 @@ from functools import wraps
 from flask import request, jsonify
 from api.models import db_engine as db
 from api.models.result import Result
+from api.models.exam import Exam
+
 
 def verify_candidate_credentials(f):
     """ verify candidate login credientials """
@@ -58,18 +60,18 @@ def verify_candidate_credentials(f):
         if candidate:
             payload = {
                 'status': 'error',
-                'message': 'email is already used by another candidate'
+                'message': 'Email is already used by another candidate'
             }
             return jsonify(payload), 400
         # check if token is correct
-        if token != candidate.token:
+        if token != candidate.get('token'):
             payload = {
                 'status': 'error',
-                'message': 'Exam token supplied is incorrect'
+                'message': 'Incorrect token supplied'
             }
             return jsonify(payload), 400
         # check if token is used
-        if candidate.token_used:
+        if candidate.get('token_used'):
             payload = {
                 'status': 'error',
                 'message': 'Exam token already used. Generate a new token'
@@ -79,11 +81,20 @@ def verify_candidate_credentials(f):
             'firstname': firstname,
             'lastname': lastname,
             'email': email,
-            'token_used': True
         }
+        # Use the exam id to get the exam condition
         from api.models.db import Database as d
-        d.update_model(Result, candidate.id, **data)
-        # Return the email address
-        return f(email, candidate.exam_id, *args, **kwargs)
+        exam_id = candidate.get('exam_id')
+        id = candidate.get('id')
+        exam = d.get_model(Exam, exam_id)
+        try:
+            d.update(Result, id, **data)
+        except ValueError:
+            return jsonify({
+                'status': 'error',
+                'message': 'Unable to update exam condition'
+            }), 500
+        # Return exam condition
+        return f(exam.to_json(), *args, **kwargs)
 
     return decorated
