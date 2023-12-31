@@ -15,9 +15,10 @@ class Database():
         Database Class - perform action with db seamlessly
         Methods:
             create_model: create a model with specified args
-            get: get a single model by specified args
+            get_model: get a single model by specified args
             get_all: get all the model's data from the database
-            get_page: get all data of model from the database as segments
+            get_my_exams: get all exam models by admin
+            get_exam_results: get all results related by exam id
             update: update a model
             delete: delete a model
     """
