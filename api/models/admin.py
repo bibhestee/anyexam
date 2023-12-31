@@ -31,7 +31,7 @@ class Admin(db.Model):
     answer: Mapped[str] = mapped_column(String, nullable=True)
     # candidate: Mapped[str] = relationship('Candidate', backref='candidate', lazy=True)
     # One to many relationship with exam
-    exams: Mapped[List['Exam']] = relationship(back_populates='admin')
+    exams: Mapped[List['Exam']] = relationship(back_populates='admin', lazy='joined')
 
     @validates('firstname') 
     def validate_firstname(self, key, firstname):
