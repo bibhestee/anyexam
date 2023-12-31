@@ -6,22 +6,61 @@ from flask import Blueprint, request, jsonify, abort
 from api.models.db import Database
 from api.v1.utils.files_handler import upload, get_all_files, load_file
 from api.v1.utils.token_required import token_required
+from api.v1.utils.verify_user_credentials import verify_candidate_credentials
 from api.models.exam import Exam
 import os
+from random import shuffle, random
+from math import floor
 
 bp  = Blueprint('quiz', __name__, url_prefix='/api/v1/quiz')
 db = Database()
 
 
 @bp.route('/start', methods=['POST'], strict_slashes=False)
-def start_exam():
+@verify_candidate_credentials
+def start_exam(exam):
     """ POST /api/v1/quiz/start
     """
-    # decode the auth token and get the exam id
-    # Get the exam condition
+    no_of_questions = exam.get('no_of_questions')
+    exam_id = exam.get('exam_id')
+    duration = exam.get('duration')
+    # Get the folder name
+    from api import app
+    folder = os.path.join(app.config['UPLOAD_FOLDER'], exam_id)
     # load the question
+    files = get_all_files(folder)
+    questions = []
+    for file in files:
+        filename = os.path.join(folder, file)
+        try:
+            contents = load_file(filename)
+        except AttributeError as e:
+            return jsonify({
+                'status': 'error',
+                'message': f'Internal server error: {e}'
+            }), 500
+        if contents:
+            questions.extend(contents)
+    if len(questions) < no_of_questions:
+        return jsonify({
+            'status': 'error',
+            'message': 'The number of available question is less than the question set for this exam'
+        })
     # shuffle the question
-    # return the question in pages
+    times = floor(random() * 10)
+    for i in range(times + 1 ):
+        shuffle(questions)
+    # return the question
+    return jsonify({
+        'status': 'success',
+        'message': 'You can start you exam now',
+        'data': {
+            'title': exam.get('title'),
+            'type': exam.get('exam_type'),
+            'questions': questions[:no_of_questions],
+            'duration': duration
+        }
+    })
 
 
 @bp.route('/upload/<exam_id>', methods=['POST'], strict_slashes=False)
@@ -29,11 +68,6 @@ def start_exam():
 def upload_question(current_user, exam_id):
     """ POST /api/v1/quiz/upload/<exam_id>
     """
-    if not exam_id:
-        return jsonify({
-            'status': 'error',
-            'message': 'No exam provided. Provide the exam id'
-        })
     try:
         db.get_model(Exam, exam_id)
         # Get the file(s) from the request method
