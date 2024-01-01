@@ -4,6 +4,7 @@ Database Controller Module
 """
 from flask import abort
 from api.models import db_engine
+from sqlalchemy.exc import DataError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy.exc import IntegrityError
 
@@ -45,6 +46,26 @@ class Database():
                 # unique is used for joined lazy loading (one to many relationship)
                 return db.session.execute(statement).unique().scalar_one()
             except (NoResultFound, MultipleResultsFound):
+                abort(404)
+        
+    def get_by(self, model, **option):
+        """ get a single model by filter option """
+        from api import app
+        with app.app_context():
+            try:
+                model_id = option.get('id')
+                token = option.get('token')
+                email = option.get('email')
+                if model_id:
+                    # unique is used for joined lazy loading (one to many relationship)
+                    return db.session.execute(db.select(model).filter_by(id=model_id)).unique().scalar_one()
+                elif token:
+                    return db.session.execute(db.select(model).filter_by(token=token)).unique().scalar_one()
+                elif email:
+                    return db.session.execute(db.select(model).filter_by(email=email)).unique().scalar_one()
+                else:
+                    abort(404)
+            except (NoResultFound, MultipleResultsFound, DataError) as e:
                 abort(404)
 
     def get_all(self, model):
