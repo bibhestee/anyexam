@@ -4,7 +4,7 @@ Files handler module
 """
 import os
 from flask import abort
-from csv import reader, Sniffer
+from csv import reader
 from typing import List
 from werkzeug.utils import secure_filename
 
