@@ -27,7 +27,7 @@ class Exam(db.Model):
     result: Mapped[str] = mapped_column(Enum('visible', 'hidden', name='result_visibility'), default='visible')
     admin_id: Mapped[str] = mapped_column(Uuid, ForeignKey('admin.id'), nullable=False)
     # One to many - one exam have many results
-    results: Mapped[List['Result']] = relationship(back_populates='exam')
+    results: Mapped[List['Result']] = relationship(back_populates='exam', lazy='joined')
     # One to many - one admin have many exams
     admin: Mapped['Admin'] = relationship(back_populates='exams')
 
