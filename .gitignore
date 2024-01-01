@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Question bank
+static/uploads/*
 # C extensions
 *.so
 
