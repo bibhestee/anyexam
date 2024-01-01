@@ -5,6 +5,8 @@ from functools import wraps
 import jwt
 from api.models.db import Database as db
 from api.models.admin import Admin
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+
 
 def token_required(f):
     @wraps(f)
@@ -30,13 +32,13 @@ def token_required(f):
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             email = data.get('email')
             from api.models import db_engine
-            current_user = db_engine.one_or_404(db_engine.select(Admin).filter_by(email=email))
+            current_user = db_engine.session.execute(db_engine.select(Admin).filter_by(email=email)).unique().scalar_one()
         except jwt.ExpiredSignatureError:
             return jsonify({
                 'status': 'error',
                 'message': 'You token has expired, login to generate new token'
             }), 401
-        except jwt.InvalidTokenError:
+        except (jwt.InvalidTokenError, NoResultFound, MultipleResultsFound):
             payload = {
                 'status': 'error',
                 'message' : 'Token supplied is invalid'
