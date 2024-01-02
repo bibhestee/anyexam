@@ -32,9 +32,8 @@ home                    GET      / or /api or /api/v1
 Authentication routes handle the authentication process of the api. Each user is expected to create an account using the signup endpoint and also be authorized using signin endpoint in order to access some of the premium features of the API.
 
 #### Signin
-POST     /api/v1/auth/signin
-##### Authorization
-Bearer Token
+* auth.signin POST     /api/v1/auth/signin
+    ##### Authorization - Bearer Token
 
 ##### Body raw (json)
     {
@@ -43,35 +42,107 @@ Bearer Token
     }
 
 #### Signup
-auth.signup             POST     /api/v1/auth/signup
+* auth.signup             POST     /api/v1/auth/signup
+
+##### Body raw (json)
+    {
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "admin3@testing.com",
+        "organization": "abcgroup",
+        "position": "staff",
+        "password": "Password1",
+        "answer": "Correct"
+    }
 
 #### Reset Password
-auth.reset_password     PUT      /api/v1/auth/reset-password/<id>
+* auth.reset_password     PUT      /api/v1/auth/reset-password/<id>
+
+##### Body raw (json)
+    {
+        "new_password": "NewPassword1",
+        "answer": "Correct"
+    }
 
 #### Candidate Login
-auth.user_login         POST     /api/v1/auth/user-login
+* auth.user_login         POST     /api/v1/auth/user-login
+##### Body raw (json)
+    {
+        "email": "candidate1@testing.com
+        "token": "c9577bcf"
+        "firstname": "Jane"
+        "lastname" = "Doe"
+    }
 
 ### Admin
+These routes handle retrieval, modification and deletion of the admin api. Information about an admin can be accessed using these routes. However, there are some routes that requires user authentication to have full access to its features
 
 #### Update Admin
-admin.update_admin      PUT      /api/v1/admins/
+* admin.update_admin      PUT      /api/v1/admins/
+    ##### Authorization - Bearer Token
+##### Body raw (json)
+    {
+        "firstname": "Jonathan"
+    }
 
 #### Get all Admins
-admin.view_all_admins   GET      /api/v1/admins/
+* admin.view_all_admins   GET      /api/v1/admins/
 
 #### Get all Exams by Admin
-admin.get_all_my_exams  GET      /api/v1/admins/myexams
+* admin.get_all_my_exams  GET      /api/v1/admins/myexams
+    ##### Authorization - Bearer Token
 
 #### Get a single Admin details
-admin.get_one_admin     GET      /api/v1/admins/<admin_id>
+* admin.get_one_admin     GET      /api/v1/admins/<admin_id>
 
 #### Delete an Admin
-admin.delete_admin      DELETE   /api/v1/admins/<admin_id>
+* admin.delete_admin      DELETE   /api/v1/admins/<admin_id>
 
 
 ### Examination Routes
-exam.exam_condition     POST     /api/v1/admins/exams/
-exam.get_all_exam       GET      /api/v1/admins/exams/
-exam.get_exam           GET      /api/v1/admins/exams/<exam_id>
-exam.update_exam        PUT      /api/v1/admins/exams/<exam_id>
+The examination routes handles all exam related endpoints. It grants the user(admin) the priviledge to set examination guidelines.
 
+* exam.exam_condition     POST     /api/v1/admins/exams/
+    ##### Authorization - Bearer Token
+##### Body raw (json)
+    {
+        "title": "Chemical Analysis",
+        "exam_type": "first semester",
+        "duration": 25,
+        "result": "visible",
+        "no_of_questions": 30
+    }
+* exam.get_all_exam       GET      /api/v1/admins/exams/
+
+* exam.get_exam           GET      /api/v1/admins/exams/<exam_id>
+
+* exam.update_exam        PUT      /api/v1/admins/exams/<exam_id>
+    ##### Authorization - Bearer Token
+##### Body raw (json)
+    {
+        "title": "Introduction to Python Programming",
+    }
+
+* exam.generate_exam_token GET    /api/v1/admins/exams/generate_token/<exam_id>
+    ##### Authorization - Bearer Token
+
+
+### Quiz Routes
+This routes handles the question bank where all questions are stored. Of course, It requires authentication to access. Here questions can be uploaded only as a .csv file.
+
+* quiz.delete_question_bank  DELETE   /api/v1/quiz/questionbank/<exam_id>/         
+
+* quiz.load_question_bank    GET      /api/v1/quiz/questionbank/<exam_id>          
+
+* quiz.start_exam            POST     /api/v1/quiz/start                           
+
+* quiz.upload_question       POST     /api/v1/quiz/upload/<exam_id>
+
+
+### Result Routes
+The result routes handles the examination scores of candidate that took the exam.
+* exam.get_results          GET      /api/v1/admins/exams/results 
+
+* exam.get_result           GET      /api/v1/admins/exams/results/<result_id> 
+
+* exam.get_result_by_exam   GET      /api/v1/admins/exams/<exam_id>/results 
