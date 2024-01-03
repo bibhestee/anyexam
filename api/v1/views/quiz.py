@@ -2,12 +2,14 @@
 """
 Quiz Routes
 """
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from api.models.db import Database
 from api.v1.utils.files_handler import upload, get_all_files, load_file
 from api.v1.utils.token_required import token_required
 from api.v1.utils.verify_user_credentials import verify_candidate_credentials
 from api.models.exam import Exam
+from api.models.result import Result
 import os
 from random import shuffle, random
 from math import floor
@@ -136,3 +138,63 @@ def delete_question_bank(current_user, exam_id):
         'status': 'success',
         'message': 'All question bank deleted'
     })
+
+
+@bp.route('/submit', methods=['POST'], strict_slashes=False)
+def submit_exam():
+    """ submit exam """
+    body: dict = request.get_json()
+    token: str = body.get('token')
+    score: int = body.get('score')
+    if not token:
+        return jsonify({
+            'status': 'error',
+            'message': 'Token is required'
+        }), 400
+    if not score:
+        return jsonify({
+            'status': 'error',
+            'message': 'Score is required'
+        }), 400
+    if type(score) != int:
+        return jsonify({
+            'status': 'error',
+            'message': 'Score should be of type Integer'
+        }), 400
+    # check if token is correct
+    try:
+        option: dict = {'token': token}
+        result: Result = db.get_by(Result, **option)
+        candidate: Result = result.to_json()
+        # check if token is used
+        if candidate.get('token_used'):
+            return jsonify({
+                'status': 'error',
+                'message': 'Unable to submit exam, exam token already used'
+            }), 400
+        if not candidate.get('email'):
+            return jsonify({
+                'status': 'error',
+                'message': 'Start the exam before submitting a score'
+            }), 400
+    except (NoResultFound, MultipleResultsFound):
+        return jsonify({
+            'status': 'error',
+            'message': 'Incorrect token supplied'
+        }), 400
+    data: dict = {
+        'token_used': True,
+        'score': score if score > 0 and score < 50 else 0
+    }
+    try:
+        id = candidate.get('result_id')
+        db.update(Result, id, **data)
+        return jsonify({
+            'status': 'success',
+            'message': 'Exam submitted successfully'
+        })
+    except (ValueError, AttributeError):
+        return jsonify({
+            'status': 'error',
+            'message': 'Unable to update exam condition'
+        }), 500
