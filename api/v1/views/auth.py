@@ -9,6 +9,7 @@ from api.models.candidate import Candidate
 from api.v1.utils.pwdvalidator import hash_password
 from api.v1.utils.verify_credentials import verify_credentials
 from api.v1.utils.verify_user_credentials import verify_candidate_credentials
+from api.v1.utils.token_required import token_required
 import jwt
 from datetime import datetime, timedelta
 
@@ -65,6 +66,7 @@ def signin(email: str):
     response.headers.set('Authorization', f'Bearer {token}')
     return response
 
+
 @bp.route('/reset-password/<id>', methods=['PUT'], strict_slashes=False)
 def reset_password(id: str):
     """ reset password """
@@ -94,6 +96,7 @@ def reset_password(id: str):
         'status': 'error',
         'message': 'The answer is incorrect, retry. What is your favourite city?'
     }), 400
+
 
 @bp.route('/user-login', methods=['POST'], strict_slashes=False)
 @verify_candidate_credentials
