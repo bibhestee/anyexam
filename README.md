@@ -137,6 +137,10 @@ This routes handles the question bank where all questions are stored. Of course,
 * quiz.start_exam            POST     /api/v1/quiz/start                           
 
 * quiz.upload_question       POST     /api/v1/quiz/upload/<exam_id>
+    #### Exam upload format (.csv)
+        Question                             | Answers                         | Correct Answer
+    
+        What is the longest bone in the body |  Clavicle, Scapula, Femur, Ulna | Femur 
 
 
 ### Result Routes
